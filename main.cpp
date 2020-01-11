@@ -1,7 +1,9 @@
 #include "main.h"
 
 /********* 宏定义区************/
-#define HSVTEST //测试HSV空间下的表现效果
+
+//#define HSVTEST //测试HSV空间下的表现效果
+
 /************结束*************/
 
 cv::Mat frame; //要处理的每一帧图像。
@@ -34,7 +36,13 @@ int main(int argc,char *argv[]){
         //arm_det.work(frame);
 #ifdef HSVTEST
         cv::cvtColor(frame,frame,CV_BGR2HSV);
-        cv::imshow("testbox",frame);
+        std::vector<cv::Mat> channels;
+        cv::split(frame,channels);
+        cv::imshow("testboxH",channels[0]);
+        cv::waitKey(0);
+        cv::imshow("testboxS",channels[1]);
+        cv::waitKey(0);
+        cv::imshow("testboxV",channels[2]);
         cv::waitKey(0);
 #endif
     }
