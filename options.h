@@ -3,6 +3,7 @@
 
 extern int ENEMY_COLOR;
 extern int CAMERA_TYPE;
+extern int OUTPUT_MODE;
 
 void initopts(int argc,char **argv);
 

@@ -3,6 +3,7 @@
 
 int ENEMY_COLOR=0; //0表示蓝色 1表示红色
 int CAMERA_TYPE=0; //0表示从文件读取，1表示调用本机摄像头，TODO：调用云台上的摄像头
+int OUTPUT_MODE=0; //1表示输出带有boundingbox的图像,0表示不输出
 
 //定义一个map存储参数列表
 std::map<std::string, std::pair<std::string, void(*)(void) > > opts={
@@ -39,6 +40,13 @@ std::map<std::string, std::pair<std::string, void(*)(void) > > opts={
             "get frame from laptop camera while the default is loadind from files",[](){
                 CAMERA_TYPE=1;
                 fprintf(stderr,"successfully set laptop camera!");
+            }
+        }
+    },
+    {"--outputmode-on",{
+            "open bbox output mode",[](){
+                OUTPUT_MODE=1;
+                fprintf(stderr,"successfully set output mode!");
             }
         }
     }
