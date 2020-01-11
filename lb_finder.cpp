@@ -120,21 +120,6 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
     std::vector<cv::Vec4i> hierarchy1,hierarchy2,hierarchyV; //hierarchy关系集合
 
     /*findContours*/
-    /*
-    //倒序排列降低vector删除复杂度
-    sort(rm1.begin(),rm1.end(),[](int a,int b){return a>b;});
-    sort(rm2.begin(),rm2.end(),[](int a,int b){return a>b;});
-    sort(rmV.begin(),rmV.end(),[](int a,int b){return a>b;});
-
-    for(auto x:rm1) lbs1.erase(lbs1.begin()+x);
-    for(auto x:rm2) lbs2.erase(lbs2.begin()+x);
-    for(auto x:rmV) lbsv.erase(lbsv.begin()+x);
-
-    //加入到返回的灯条数组中
-    for(auto x:lbs1) LiBs.emplace_back(x);
-    for(auto x:lbs2) LiBs.emplace_back(x);
-    for(auto x:lbsv) LiBs.emplace_back(x);
-    */
     cv::findContours(Binframe,contour1,hierarchy1,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE);
     cv::findContours(Binframe2,contour2,hierarchy2,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE);
     cv::findContours(VBinframe,contourV,hierarchyV,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE);
