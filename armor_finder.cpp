@@ -19,16 +19,16 @@ void Armor_Detector::work(cv::Mat &frame){
     if(!findLightBlobs(frame,LiBs)){
         ReturnFunc(frame);return;
     }
-    
+
 #ifdef DBGLBS
     for(auto x:LiBs){
         cv::Point2f* verts = new cv::Point2f[4];
         x.LBRect.points(verts);
         for(int i=0;i<4;++i){
-            cv::line(frame,verts[i],verts[(i+1)%4],cv::Scalar(0,255,0));
+            cv::line(frame,verts[i],verts[(i+1)%4],cv::Scalar(0,255,255),3);
         }
     }
-    cv::imshow("test_rotated_rect",frame);
+    cv::imshow("test_bbox_for_LB",frame);
     cv::waitKey(0);
 #endif
 

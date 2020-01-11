@@ -4,6 +4,7 @@
 
 //#define DBGLB1 //输出找灯条过程中的图像
 //#define DBGLB2 //输出找灯条过程中的图像
+//#define DBGLB3 //输出处理后的三幅图像
 
 //计算灯条外接矩形的长宽比
 double length_width_ratio(cv::RotatedRect &rect){
@@ -22,12 +23,14 @@ bool isLightBlob(std::vector<cv::Point> contour,cv::RotatedRect rect){
     double lwr=length_width_ratio(rect);
     double ratio=arearatio(contour,rect);
     //小灯条可能外接矩形误差更大
-    return (lwr>1.2&&lwr<12)&&((rect.size.area()<50&&ratio>0.6)||(rect.size.area()>=50&&ratio>0.8));
+    //std::cerr<<lwr<<" "<<ratio<<std::endl;
+    return (lwr>1.2&&lwr<12)&&((rect.size.area()<50&&ratio>0.4)||(rect.size.area()>=50&&ratio>0.6));
 }
 
-//判断两个灯条是否等价，求交集用
+//通过距离判断两个灯条是否等价，求交集用
 bool isEqualLB(LightBlob lb1,LightBlob lb2){
-
+    auto dist=lb1.LBRect.center-lb2.LBRect.center;
+    return(dist.x*dist.x+dist.y*dist.y)<9;
 }
 
 void Armor_Detector::frameProcess(cv::Mat &frame){
@@ -100,6 +103,15 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
     cv::waitKey(0);
 #endif
 
+#ifdef DBGLB3
+    cv::imshow("b1",Binframe);
+    cv::waitKey(0);
+    cv::imshow("b2",Binframe2);
+    cv::waitKey(0);
+    cv::imshow("bv",VBinframe);
+    cv::waitKey(0);
+#endif
+
     //三次操作，前两次减少二值化操作的误差，第三次通过明度降低蓝色背景带来的误差
     //对三次操作的图像取交得到正确的灯条集合
 
@@ -108,12 +120,29 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
     std::vector<cv::Vec4i> hierarchy1,hierarchy2,hierarchyV; //hierarchy关系集合
 
     /*findContours*/
+    /*
+    //倒序排列降低vector删除复杂度
+    sort(rm1.begin(),rm1.end(),[](int a,int b){return a>b;});
+    sort(rm2.begin(),rm2.end(),[](int a,int b){return a>b;});
+    sort(rmV.begin(),rmV.end(),[](int a,int b){return a>b;});
+
+    for(auto x:rm1) lbs1.erase(lbs1.begin()+x);
+    for(auto x:rm2) lbs2.erase(lbs2.begin()+x);
+    for(auto x:rmV) lbsv.erase(lbsv.begin()+x);
+
+    //加入到返回的灯条数组中
+    for(auto x:lbs1) LiBs.emplace_back(x);
+    for(auto x:lbs2) LiBs.emplace_back(x);
+    for(auto x:lbsv) LiBs.emplace_back(x);
+    */
     cv::findContours(Binframe,contour1,hierarchy1,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE);
     cv::findContours(Binframe2,contour2,hierarchy2,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE);
     cv::findContours(VBinframe,contourV,hierarchyV,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE);
     /*END*/
 
     //对三个图像分别做找灯条操作
+    //fprintf(stderr,"contour1.size()=%u\n",contour1.size());
+
     for(int i=0;i<contour1.size();++i){
         if(hierarchy1[i][2]==-1){
             cv::RotatedRect rect=cv::minAreaRect(contour1[i]);
@@ -146,43 +175,36 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
     std::vector<int> rm1,rm2,rmV;
     for(int i=0;i<lbs1.size();++i){
         for(int j=0;j<lbs2.size();++j){
-            for(int k=0;k<lbsv.size();++k){
-                if(isEqualLB(lbs1[i],lbs2[j])&&isEqualLB(lbs2[j],lbsv[k])){
-                    //留下面积比值最大的
-                    if(lbs1[i].area_ratio>lbs2[j].area_ratio){
-                        if(lbs1[i].area_ratio>lbsv[k].area_ratio){
-                            rm2.emplace_back(j);
-                            rmV.emplace_back(k);
+            //fprintf(stderr,"%d %d\n",i,j);
+            if(isEqualLB(lbs1[i],lbs2[j])){
+                for(int k=0;k<lbsv.size();++k){
+                    if(isEqualLB(lbs2[j],lbsv[k])){
+                        //留下面积比值最大的
+                        if(lbs1[i].area_ratio>lbs2[j].area_ratio){
+                            if(lbs1[i].area_ratio>lbsv[k].area_ratio){
+                                //rm2.emplace_back(j);
+                                //rmV.emplace_back(k);
+                                LiBs.emplace_back(lbs1[i]);
+                            }else{
+                                //rm1.emplace_back(i);
+                                //rm2.emplace_back(j);
+                                LiBs.emplace_back(lbsv[k]);
+                            }
                         }else{
-                            rm1.emplace_back(i);
-                            rm2.emplace_back(j);
-                        }
-                    }else{
-                        if(lbs2[j].area_ratio>lbsv[k].area_ratio){
-                            rm1.emplace_back(i);
-                            rmV.emplace_back(k);
-                        }else{
-                            rm1.emplace_back(i);
-                            rm2.emplace_back(j);
+                            if(lbs2[j].area_ratio>lbsv[k].area_ratio){
+                                //rm1.emplace_back(i);
+                                //rmV.emplace_back(k);
+                                LiBs.emplace_back(lbs2[j]);
+                            }else{
+                                //rm1.emplace_back(i);
+                                //rm2.emplace_back(j);
+                                LiBs.emplace_back(lbsv[k]);
+                            }
                         }
                     }
                 }
             }
         }
     }
-    //倒序排列降低vector删除复杂度
-    sort(rm1.begin(),rm1.end(),[](int a,int b){return a>b;});
-    sort(rm2.begin(),rm2.end(),[](int a,int b){return a>b;});
-    sort(rmV.begin(),rmV.end(),[](int a,int b){return a>b;});
-
-    for(auto x:rm1) lbs1.erase(lbs1.begin()+x);
-    for(auto x:rm2) lbs2.erase(lbs2.begin()+x);
-    for(auto x:rmV) lbsv.erase(lbsv.begin()+x);
-
-    //加入到返回的灯条数组中
-    for(auto x:lbs1) LiBs.emplace_back(x);
-    for(auto x:lbs2) LiBs.emplace_back(x);
-    for(auto x:lbsv) LiBs.emplace_back(x);
-    
     return LiBs.size()>=2;
 }
