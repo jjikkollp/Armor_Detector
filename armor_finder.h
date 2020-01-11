@@ -10,6 +10,8 @@ class Armor_Detector{
 public:
     //在图上寻找所有的灯条
     bool findLightBlobs(cv::Mat &frame, std::vector<LightBlob> &LiBs);
+    //对图像进行开闭运算
+    void frameProcess(cv::Mat &frame);
     //装甲板识别主函数
     void work(cv::Mat &frame);
 };

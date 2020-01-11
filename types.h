@@ -7,11 +7,10 @@
 class LightBlob{
 public:
     cv::RotatedRect LBRect; //代表灯条的矩形。
-    uint8_t LBColor; //灯条的颜色。
-
+    double area_ratio; //灯条和矩形的近似程度
     //构造函数
-    LightBlob(cv::RotatedRect r,uint8_t cl):LBRect(r),LBColor(cl){}
-    LightBlob()=default;
+    LightBlob(cv::RotatedRect r,double ratio):LBRect(r),area_ratio(ratio){}
+    //LightBlob()=default;
 };
 
 //装甲板类定义

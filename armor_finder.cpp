@@ -1,5 +1,8 @@
 #include "armor_finder.h"
 
+#define DBGLBS
+
+
 //在返回前判断是否是OUTPUT模式
 void ReturnFunc(cv::Mat frame){
     if(OUTPUT_MODE){
@@ -17,5 +20,17 @@ void Armor_Detector::work(cv::Mat &frame){
         ReturnFunc(frame);return;
     }
     
+#ifdef DBGLBS
+    for(auto x:LiBs){
+        cv::Point2f* verts = new cv::Point2f[4];
+        x.LBRect.points(verts);
+        for(int i=0;i<4;++i){
+            cv::line(frame,verts[i],verts[(i+1)%4],cv::Scalar(0,255,0));
+        }
+    }
+    cv::imshow("test_rotated_rect",frame);
+    cv::waitKey(0);
+#endif
+
     return;
 }
