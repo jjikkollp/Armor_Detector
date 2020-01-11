@@ -9,7 +9,7 @@ std::map<std::string, std::pair<std::string, void(*)(void) > > opts={
     {"--help",{
             "show the help information",[](){
                 for(auto &opt : opts){
-                    fprintf(stderr,"%s   %s\n",opt.first,opt.second.first);
+                    fprintf(stderr,"%s   %s\n",opt.first.c_str(),opt.second.first.c_str());
                 }
             }
         }

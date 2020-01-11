@@ -4,5 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <cctype>
 #include "options.h"
+#include "types.h"
+#include "armor_finder.h"
 
 #endif

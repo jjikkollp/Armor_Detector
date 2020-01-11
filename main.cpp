@@ -2,11 +2,13 @@
 
 cv::Mat frame; //要处理的每一帧图像。
 
-std::string FILEPATH="/pos/"; //存储装甲板图像的文件相对路径
+std::string FILEPATH="../pos/"; //存储装甲板图像的文件相对路径
 cv::VideoCapture cam(0); //laptop摄像头初始化
 int Current_Frame=1; //读取文件时的计数器。
+Armor_Detector arm_det; //寻找装甲ban实例对象
 
-//读取每一帧
+
+//读取每一帧，返回是否成功读取
 bool Load_Frame(int type){
     if(type == 0){
         if(Current_Frame > 667) return false; // 文件读取完了
