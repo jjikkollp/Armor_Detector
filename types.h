@@ -25,6 +25,4 @@ public:
     cv::Point2f Center(); //获取装甲板中心
 };
 
-
-
 #endif /* TYPES_H */

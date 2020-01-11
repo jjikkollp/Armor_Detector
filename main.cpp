@@ -7,7 +7,6 @@ cv::VideoCapture cam(0); //laptop摄像头初始化
 int Current_Frame=1; //读取文件时的计数器。
 Armor_Detector arm_det; //寻找装甲ban实例对象
 
-
 //读取每一帧，返回是否成功读取
 bool Load_Frame(int type){
     if(type == 0){
@@ -28,7 +27,7 @@ bool Load_Frame(int type){
 int main(int argc,char *argv[]){
     initopts(argc,argv);
     while(Load_Frame(CAMERA_TYPE)){
-        
+        arm_det.work(frame);
     }
     fprintf(stderr,"The Program ended successfully!");
     return 0;
