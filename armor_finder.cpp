@@ -17,4 +17,5 @@ void Armor_Detector::work(cv::Mat &frame){
         ReturnFunc(frame);return;
     }
     
+    return;
 }

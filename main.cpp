@@ -33,7 +33,7 @@ bool Load_Frame(int type){
 int main(int argc,char *argv[]){
     initopts(argc,argv);
     while(Load_Frame(CAMERA_TYPE)){
-        //arm_det.work(frame);
+        arm_det.work(frame);
 #ifdef HSVTEST
         cv::cvtColor(frame,frame,CV_BGR2HSV);
         std::vector<cv::Mat> channels;
