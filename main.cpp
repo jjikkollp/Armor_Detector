@@ -1,5 +1,9 @@
 #include "main.h"
 
+/********* 宏定义区************/
+#define HSVTEST //测试HSV空间下的表现效果
+/************结束*************/
+
 cv::Mat frame; //要处理的每一帧图像。
 
 std::string FILEPATH="../pos/"; //存储装甲板图像的文件相对路径
@@ -27,7 +31,12 @@ bool Load_Frame(int type){
 int main(int argc,char *argv[]){
     initopts(argc,argv);
     while(Load_Frame(CAMERA_TYPE)){
-        arm_det.work(frame);
+        //arm_det.work(frame);
+#ifdef HSVTEST
+        cv::cvtColor(frame,frame,CV_BGR2HSV);
+        cv::imshow("testbox",frame);
+        cv::waitKey(0);
+#endif
     }
     fprintf(stderr,"The Program ended successfully!");
     return 0;
