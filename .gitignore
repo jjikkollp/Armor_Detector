@@ -1,0 +1,5 @@
+/neg/
+/pos/
+!/.gitignore
+.vscode
+/build/
