@@ -19,17 +19,15 @@ bool colJudge(const cv::Mat &frame, const cv::RotatedRect &LiB) {
     int flag=1;
     for(int row=0;row<roi.rows;row++){
         for(int col=0;col< roi.cols; col++){
-            blue_cnt=roi.at<cv::Vec3b>(row,col)[0];
-            green_cnt=roi.at<cv::Vec3b>(row,col)[1];
-            red_cnt=roi.at<cv::Vec3b>(row,col)[2];
-            if(ENEMY_COLOR==BLUE){
-                if(blue_cnt>225)
-                    flag&=(red_cnt<185);
-            }else if(ENEMY_COLOR==RED){
-                if(red_cnt>225)
-                    flag&=(blue_cnt<150);
-            }
+            blue_cnt+=roi.at<cv::Vec3b>(row,col)[0];
+            green_cnt+=roi.at<cv::Vec3b>(row,col)[1];
+            red_cnt+=roi.at<cv::Vec3b>(row,col)[2];
         }
+    }
+    if(ENEMY_COLOR==BLUE){
+        flag&=((blue_cnt>green_cnt)&&(blue_cnt>2*red_cnt));
+    }else if(ENEMY_COLOR==RED){
+        flag&=((red_cnt>green_cnt)&&(red_cnt>2.5*blue_cnt));
     }
     return flag;
 }
