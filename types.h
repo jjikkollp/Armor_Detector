@@ -8,8 +8,11 @@ class LightBlob{
 public:
     cv::RotatedRect LBRect; //代表灯条的矩形。
     double area_ratio; //灯条和矩形的近似程度
+    double length;
     //构造函数
-    LightBlob(cv::RotatedRect r,double ratio):LBRect(r),area_ratio(ratio){}
+    LightBlob(cv::RotatedRect r,double ratio):LBRect(r),area_ratio(ratio){
+        length=std::max(LBRect.size.height,LBRect.size.width);
+    }
     //LightBlob()=default;
 };
 
