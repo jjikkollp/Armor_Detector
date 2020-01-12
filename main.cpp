@@ -12,12 +12,13 @@ std::string FILEPATH="../pos/"; //存储装甲板图像的文件相对路径
 cv::VideoCapture cam(0); //laptop摄像头初始化
 int Current_Frame=1; //读取文件时的计数器。
 Armor_Detector arm_det; //寻找装甲ban实例对象
+std::string file; //当前读取文件目录
 
 //读取每一帧，返回是否成功读取
 bool Load_Frame(int type){
     if(type == 0){
         if(Current_Frame > 667) return false; // 文件读取完了
-        std::string file = FILEPATH+"a"+std::to_string(Current_Frame)+".jpg";
+        file = FILEPATH+"a"+std::to_string(Current_Frame)+".jpg";
         frame = cv::imread(file);
         ++Current_Frame;
         return true;
@@ -45,6 +46,9 @@ int main(int argc,char *argv[]){
         cv::imshow("testboxV",channels[2]);
         cv::waitKey(0);
 #endif
+        if(OUTPUT_MODE){
+            cv::imwrite('P'+file,frame);
+        }
     }
     fprintf(stderr,"The Program ended successfully!");
     return 0;
