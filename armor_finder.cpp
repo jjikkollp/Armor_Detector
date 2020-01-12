@@ -12,7 +12,7 @@ void ReturnFunc(cv::Mat frame){
     }
 }
 
-//DEL:倾斜装甲板无法判断，故删除
+//~~DEL:倾斜装甲板无法判断，故删除~~
 //判断两个灯条的水平高度差是否较小
 // bool heightDiff(LightBlob &x,LightBlob &y){
     // return abs((x.LBRect.center-y.LBRect.center).y)<40;
@@ -32,12 +32,17 @@ bool angleDiff(LightBlob &x,LightBlob &y){
     return abs(angx-angy)<20;
 }
 
-//判断两个灯条的水平间距
-bool distDiff(LightBlob &x,LightBlob &y){
+double getdis(LightBlob &x,LightBlob &y){
     cv::Point2f center = x.LBRect.center-y.LBRect.center;
     double dist=sqrt(center.ddot(center));
+    return dist;
+}
+
+//判断两个灯条的水平间距
+bool distDiff(LightBlob &x,LightBlob &y){
+    double dist=getdis(x,y);
     //判断灯条长度和距离的比值
-    double ratio = dist/x.length;
+    double ratio=dist/x.length;
     return (ratio<10&&ratio>0.5);
 }
 
@@ -54,7 +59,7 @@ static bool CuoWeiDuJudge(const LightBlob &light_blob_i, const LightBlob &light_
     cv::Vec2f orientation(cos(angle), sin(angle));
     cv::Vec2f p2p(light_blob_j.LBRect.center.x - light_blob_i.LBRect.center.x,
                  light_blob_j.LBRect.center.y - light_blob_i.LBRect.center.y);
-    return abs(orientation.dot(p2p)) < 25;
+    return abs(orientation.dot(p2p)) < 16;
 }
 //判断装甲板的方向（SJTU的代码）
 static bool boxAngleJudge(const LightBlob &light_blob_i, const LightBlob &light_blob_j) {
@@ -78,13 +83,30 @@ bool isMatchLB(LightBlob &x,LightBlob &y){
     return lengthDiff(x,y)&&angleDiff(x,y)&&distDiff(x,y)&&boxAngleJudge(x,y)&&CuoWeiDuJudge(x,y);
 }
 
+struct foo{
+    int id;
+    double dis;
+    foo(int i=0,int d=0):id(i),dis(d){}
+    bool operator < (foo b)const{
+        return dis<b.dis;
+    }
+    ~foo()=default;
+};
+
 bool Armor_Detector::matchLBS(cv::Mat &frame, std::vector<LightBlob> &LiBs,std::vector<Armor_box> &ArBs){
     static int used[200];
     for(int i=0;i<LiBs.size();++i) used[i]=0;
     for(int i=0;i<LiBs.size()-1;++i){
         if(used[i]) continue;
+        foo bar[200];int cnt=0;
         for(int j=i+1;j<LiBs.size();++j){
-            if(used[j]) continue;
+            if(!used[j]){
+                bar[++cnt]=foo(j,getdis(LiBs[i],LiBs[j]));
+            }
+        }
+        std::sort(bar+1,bar+cnt+1);
+        for(int k=1;k<=cnt;++k){
+            int j=bar[k].id;
             if(!isMatchLB(LiBs[i],LiBs[j])) continue;
             cv::Rect2d l=LiBs[i].LBRect.boundingRect(); //得到左右灯条代表的矩形
             cv::Rect2d r=LiBs[j].LBRect.boundingRect(); //得到左右灯条代表的矩形
@@ -126,7 +148,12 @@ void Armor_Detector::work(cv::Mat &frame){
         ReturnFunc(frame);return;
     }
 
-    //fprintf(stderr,"%d\n",(int)LiBs.size());
+    //将灯条按从左到右顺序排序，便于找装甲板。
+
+    sort(LiBs.begin(),LiBs.end(),[](LightBlob &x,LightBlob &y){\
+    return x.LBRect.center.x==y.LBRect.center.x ?\
+    x.LBRect.center.y<y.LBRect.center.y:\
+    x.LBRect.center.x<y.LBRect.center.x;});
 
 #ifdef DBGLBS
     for(auto x:LiBs){
