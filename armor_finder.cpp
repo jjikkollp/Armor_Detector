@@ -41,7 +41,7 @@ bool distDiff(LightBlob &x,LightBlob &y){
     return (ratio<10&&ratio>0.5);
 }
 
-/* 判断两个灯条的错位度，不知道英文是什么！！！ */
+//判断两个灯条的错位度（SJTU的代码）
 static bool CuoWeiDuJudge(const LightBlob &light_blob_i, const LightBlob &light_blob_j) {
     float angle_i = light_blob_i.LBRect.size.width > light_blob_i.LBRect.size.height ? light_blob_i.LBRect.angle :
                     light_blob_i.LBRect.angle - 90;
@@ -56,7 +56,7 @@ static bool CuoWeiDuJudge(const LightBlob &light_blob_i, const LightBlob &light_
                  light_blob_j.LBRect.center.y - light_blob_i.LBRect.center.y);
     return abs(orientation.dot(p2p)) < 25;
 }
-// 判断装甲板方向
+//判断装甲板的方向（SJTU的代码）
 static bool boxAngleJudge(const LightBlob &light_blob_i, const LightBlob &light_blob_j) {
     float angle_i = light_blob_i.LBRect.size.width > light_blob_i.LBRect.size.height ? light_blob_i.LBRect.angle :
                     light_blob_i.LBRect.angle - 90;
