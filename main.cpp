@@ -54,7 +54,7 @@ int main(int argc,char *argv[]){
         }
     }
     clock_t end=clock();
-    fprintf(stderr,"It costs %.3f seconds to solve %d frames",(double)(end-start)/CLOCKS_PER_SEC,Current_Frame-1);
+    fprintf(stderr,"It costs %.3f seconds to solve %d frames\n",(double)(end-start)/CLOCKS_PER_SEC,Current_Frame-1);
     fprintf(stderr,"The Program ended successfully!\n");
     return 0;
 }

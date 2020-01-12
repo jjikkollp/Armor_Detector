@@ -116,7 +116,7 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
     frameProcess(Binframe); //开闭运算，清除发光噪点
 
     //第二次二值化颜色通道
-    cv::threshold(color_channel,Binframe2,140,255,CV_THRESH_BINARY);
+    cv::threshold(color_channel,Binframe2,175,255,CV_THRESH_BINARY);
     if(Binframe2.empty()) return false; //没有找到任何一个灯条
     frameProcess(Binframe2); //开闭运算，清除发光噪点
 
@@ -203,13 +203,13 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
 
     //对三个图像得到的灯条求交集
     for(int i=0;i<lbs1.size();++i){
-        // if(ban1[i]) continue;
+        if(ban1[i]) continue;
         for(int j=0;j<lbs2.size();++j){
-            // if(ban2[j]) continue;
+            if(ban2[j]) continue;
             if(isEqualLB(lbs1[i],lbs2[j])){
                 //fprintf(stderr,"lbsij = %d %d\n",i,j);
                 for(int k=0;k<lbsv.size();++k){
-                    // if(banv[k]) continue;
+                    if(banv[k]) continue;
                     if(isEqualLB(lbs2[j],lbsv[k])){
                         //留下面积比值最大的
                         //fprintf(stderr,"lbs = %d %d %d\n",i,j,k);
