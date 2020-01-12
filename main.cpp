@@ -33,6 +33,7 @@ bool Load_Frame(int type){
 }
 
 int main(int argc,char *argv[]){
+    clock_t start=clock();
     initopts(argc,argv);
     while(Load_Frame(CAMERA_TYPE)){
         arm_det.work(frame);
@@ -48,10 +49,12 @@ int main(int argc,char *argv[]){
         cv::waitKey(0);
 #endif
         if(OUTPUT_MODE){
-            file = FILEPATH2+"a"+std::to_string(Current_Frame)+".jpg";
+            file = FILEPATH2+"a"+std::to_string(Current_Frame-1)+".jpg";
             cv::imwrite(file,frame);
         }
     }
+    clock_t end=clock();
+    fprintf(stderr,"It costs %.3f seconds to solve %d frames",(double)(end-start)/CLOCKS_PER_SEC,Current_Frame-1);
     fprintf(stderr,"The Program ended successfully!\n");
     return 0;
 }
