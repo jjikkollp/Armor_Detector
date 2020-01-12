@@ -1,3 +1,4 @@
+//TODO: 判断灯条的颜色，避免S(0,255,255)的干扰？
 #include "types.h"
 #include "armor_finder.h"
 #include "options.h"
