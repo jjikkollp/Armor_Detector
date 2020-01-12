@@ -1,16 +1,8 @@
 //TODO：获取装甲板ID
 #include "armor_finder.h"
 
-//#define DBGLBS //输出灯条框
+#define DBGLBS //输出灯条框
 // #define LB_PARAM //调试灯条匹配参数
-
-//在返回前判断是否是OUTPUT模式
-void ReturnFunc(cv::Mat frame){
-    if(OUTPUT_MODE){
-        cv::imshow("CurrentFrame",frame);
-        cv::waitKey(0);
-    }
-}
 
 //~~DEL:倾斜装甲板无法判断，故删除~~
 //判断两个灯条的水平高度差是否较小
@@ -145,7 +137,7 @@ void Armor_Detector::work(cv::Mat &frame){
 
     //在图上寻找灯条
     if(!findLightBlobs(frame,LiBs)){
-        ReturnFunc(frame);return;
+        return;
     }
 
     //将灯条按从左到右顺序排序，便于找装甲板。
@@ -163,13 +155,11 @@ void Armor_Detector::work(cv::Mat &frame){
             cv::line(frame,verts[i],verts[(i+1)%4],cv::Scalar(0,255,255),3);
         }
     }
-    cv::imshow("test_bbox_for_LB",frame);
-    cv::waitKey(0);
 #endif
 
     //配对灯条，找出装甲板
     if(!matchLBS(frame,LiBs,ArBs)){
-        ReturnFunc(frame);return;
+        return;
     }
 
     if(OUTPUT_MODE){
@@ -178,7 +168,5 @@ void Armor_Detector::work(cv::Mat &frame){
             cv::rectangle(frame,x.ABRect,cv::Scalar(0,255,255),2);
         }
     }
-
-    ReturnFunc(frame);
     return;
 }
