@@ -79,8 +79,12 @@ bool isMatchLB(LightBlob &x,LightBlob &y){
 }
 
 bool Armor_Detector::matchLBS(cv::Mat &frame, std::vector<LightBlob> &LiBs,std::vector<Armor_box> &ArBs){
+    static int used[200];
+    for(int i=0;i<LiBs.size();++i) used[i]=0;
     for(int i=0;i<LiBs.size()-1;++i){
+        if(used[i]) continue;
         for(int j=i+1;j<LiBs.size();++j){
+            if(used[j]) continue;
             if(!isMatchLB(LiBs[i],LiBs[j])) continue;
             cv::Rect2d l=LiBs[i].LBRect.boundingRect(); //得到左右灯条代表的矩形
             cv::Rect2d r=LiBs[j].LBRect.boundingRect(); //得到左右灯条代表的矩形
@@ -102,6 +106,7 @@ bool Armor_Detector::matchLBS(cv::Mat &frame, std::vector<LightBlob> &LiBs,std::
                     {LiBs[i],LiBs[j]}
                 )
             );
+            used[i]=1;used[j]=1;
             break;
         }
     }
