@@ -18,35 +18,35 @@ std::map<std::string, std::pair<std::string, void(*)(void) > > opts={
     {"--setcolorb",{
             "set enemy's color to blue, this argument can be omitted",[](){
                 ENEMY_COLOR=0;
-                fprintf(stderr,"successfully set enemy's color to blue!");
+                fprintf(stderr,"successfully set enemy's color to blue!\n");
             }
         }
     },
     {"--setcolorr",{
             "set enemy's color to red while the default is blue",[](){
                 ENEMY_COLOR=1;
-                fprintf(stderr,"successfully set enemy's color to red!");
+                fprintf(stderr,"successfully set enemy's color to red!\n");
             }
         }
     },
     {"--setcamera0",{
             "get frame from files, this argument can be omitted",[](){
                 CAMERA_TYPE=0;
-                fprintf(stderr,"successfully set frame loading file!");
+                fprintf(stderr,"successfully set frame loading file!\n");
             }
         }
     },
     {"--setcamera1",{
             "get frame from laptop camera while the default is loadind from files",[](){
                 CAMERA_TYPE=1;
-                fprintf(stderr,"successfully set laptop camera!");
+                fprintf(stderr,"successfully set laptop camera!\n");
             }
         }
     },
     {"--outputmode-on",{
             "open bbox output mode",[](){
                 OUTPUT_MODE=1;
-                fprintf(stderr,"successfully set output mode!");
+                fprintf(stderr,"successfully set output mode!\n");
             }
         }
     }
@@ -58,7 +58,7 @@ void initopts(int argc,char **argv){
         for(int i=1;i<argc;++i){
             auto ans=opts.find(std::string(argv[i]));
             if(ans==opts.end()){
-                fprintf(stderr,"Unknown option. Plz use --help to get the manual");
+                fprintf(stderr,"Unknown option. Plz use --help to get the manual\n");
             }else{
                 ans->second.second();
             }

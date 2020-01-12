@@ -7,6 +7,33 @@
 //#define DBGLB2 //输出找灯条过程中的图像
 //#define DBGLB3 //输出处理后的三幅图像
 
+bool colJudge(const cv::Mat &frame, const cv::RotatedRect &LiB) {
+    auto region=LiB.boundingRect();
+    region.x-=std::max(3.,region.width*0.1);
+    region.y-=std::max(3.,region.height*0.05);
+    region.width+=2*std::max(3.,region.width*0.1);
+    region.height+=2*std::max(3.,region.height*0.05);
+    region&=cv::Rect(0,0,frame.cols,frame.rows);
+    cv::Mat roi=frame(region);
+    int red_cnt=0,blue_cnt=0,green_cnt=0;
+    int flag=1;
+    for(int row=0;row<roi.rows;row++){
+        for(int col=0;col< roi.cols; col++){
+            blue_cnt=roi.at<cv::Vec3b>(row,col)[0];
+            green_cnt=roi.at<cv::Vec3b>(row,col)[1];
+            red_cnt=roi.at<cv::Vec3b>(row,col)[2];
+            if(ENEMY_COLOR==BLUE){
+                if(blue_cnt>225)
+                    flag&=(red_cnt<185);
+            }else if(ENEMY_COLOR==RED){
+                if(red_cnt>225)
+                    flag&=(blue_cnt<150);
+            }
+        }
+    }
+    return flag;
+}
+
 //计算灯条外接矩形的长宽比
 double length_width_ratio(cv::RotatedRect &rect){
     return rect.size.height>rect.size.width ? 
@@ -25,13 +52,14 @@ bool isLightBlob(std::vector<cv::Point> contour,cv::RotatedRect rect){
     double ratio=arearatio(contour,rect);
     //小灯条可能外接矩形误差更大
     //std::cerr<<lwr<<" "<<ratio<<std::endl;
-    return (lwr>1.2&&lwr<12)&&((rect.size.area()<50&&ratio>0.4)||(rect.size.area()>=50&&ratio>0.6));
+    return (lwr>1.2&&lwr<14)&&((rect.size.area()<50&&ratio>0.4)||(rect.size.area()>=50&&ratio>0.6));
 }
 
 //通过距离判断两个灯条是否等价，求交集用
 bool isEqualLB(LightBlob lb1,LightBlob lb2){
     auto dist=lb1.LBRect.center-lb2.LBRect.center;
-    return(dist.x*dist.x+dist.y*dist.y)<9;
+    //std::cerr<<(dist.x*dist.x+dist.y*dist.y)<<std::endl;
+    return (dist.x*dist.x+dist.y*dist.y)<9;
 }
 
 void Armor_Detector::frameProcess(cv::Mat &frame){
@@ -81,7 +109,7 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
     if(ENEMY_COLOR==BLUE){
         light_threshold = 225; //神秘调参
     }else if(ENEMY_COLOR==RED){
-        light_threshold = 200; //神秘调参
+        light_threshold = 225; //神秘调参
     }
 
     //二值化颜色通道
@@ -127,8 +155,6 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
     /*END*/
 
     //对三个图像分别做找灯条操作
-    //fprintf(stderr,"contour1.size()=%u\n",contour1.size());
-
     for(int i=0;i<contour1.size();++i){
         if(hierarchy1[i][2]==-1){
             cv::RotatedRect rect=cv::minAreaRect(contour1[i]);
@@ -157,33 +183,48 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
     }
     /* END */
 
-    //对三个图像得到的灯条求交集
-    std::vector<int> rm1,rm2,rmV;
+    //通过颜色判断去除S(0,255,255)的干扰。
+    int ban1[200],ban2[200],banv[200];
     for(int i=0;i<lbs1.size();++i){
+        ban1[i]=0;
+        if(!colJudge(frame,lbs1[i].LBRect))
+            ban1[i]=1;
+    }
+    for(int i=0;i<lbs2.size();++i){
+        ban2[i]=0;
+        if(!colJudge(frame,lbs2[i].LBRect))
+            ban2[i]=1;
+    }
+    for(int i=0;i<lbsv.size();++i){
+        banv[i]=0;
+        if(!colJudge(frame,lbsv[i].LBRect))
+            banv[i]=1;
+    }
+
+    //fprintf(stderr,"QAQ%d\n",(int)lbs1.size());
+
+    //对三个图像得到的灯条求交集
+    for(int i=0;i<lbs1.size();++i){
+        if(ban1[i]) continue;
         for(int j=0;j<lbs2.size();++j){
-            //fprintf(stderr,"%d %d\n",i,j);
+            if(ban2[j]) continue;
             if(isEqualLB(lbs1[i],lbs2[j])){
+                //fprintf(stderr,"lbsij = %d %d\n",i,j);
                 for(int k=0;k<lbsv.size();++k){
+                    if(banv[k]) continue;
                     if(isEqualLB(lbs2[j],lbsv[k])){
                         //留下面积比值最大的
+                        //fprintf(stderr,"lbs = %d %d %d\n",i,j,k);
                         if(lbs1[i].area_ratio>lbs2[j].area_ratio){
                             if(lbs1[i].area_ratio>lbsv[k].area_ratio){
-                                //rm2.emplace_back(j);
-                                //rmV.emplace_back(k);
                                 LiBs.emplace_back(lbs1[i]);
                             }else{
-                                //rm1.emplace_back(i);
-                                //rm2.emplace_back(j);
                                 LiBs.emplace_back(lbsv[k]);
                             }
                         }else{
                             if(lbs2[j].area_ratio>lbsv[k].area_ratio){
-                                //rm1.emplace_back(i);
-                                //rmV.emplace_back(k);
                                 LiBs.emplace_back(lbs2[j]);
                             }else{
-                                //rm1.emplace_back(i);
-                                //rm2.emplace_back(j);
                                 LiBs.emplace_back(lbsv[k]);
                             }
                         }

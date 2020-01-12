@@ -1,8 +1,8 @@
 //TODO：获取装甲板ID
 #include "armor_finder.h"
 
-//#define DBGLBS
-
+//#define DBGLBS //输出灯条框
+// #define LB_PARAM //调试灯条匹配参数
 
 //在返回前判断是否是OUTPUT模式
 void ReturnFunc(cv::Mat frame){
@@ -12,10 +12,12 @@ void ReturnFunc(cv::Mat frame){
     }
 }
 
+//DEL:倾斜装甲板无法判断，故删除
 //判断两个灯条的水平高度差是否较小
-bool heightDiff(LightBlob &x,LightBlob &y){
-    return abs((x.LBRect.center-y.LBRect.center).y)<25;
-}
+// bool heightDiff(LightBlob &x,LightBlob &y){
+    // return abs((x.LBRect.center-y.LBRect.center).y)<40;
+// }
+
 
 //判断两个灯条的长度是否接近（考虑一个较远，一个较近的情况，存在一个区间）
 bool lengthDiff(LightBlob &x,LightBlob &y){
@@ -25,8 +27,8 @@ bool lengthDiff(LightBlob &x,LightBlob &y){
 
 //判断两个灯条的竖直角度差是否较小
 bool angleDiff(LightBlob &x,LightBlob &y){
-    double angx = (x.LBRect.size.width > x.LBRect.size.height) ? (x.LBRect.angle):(90-x.LBRect.angle);
-    double angy = (y.LBRect.size.width > y.LBRect.size.height) ? (y.LBRect.angle):(90-y.LBRect.angle);
+    double angx = (x.LBRect.size.width > x.LBRect.size.height) ? (x.LBRect.angle):(x.LBRect.angle-90);
+    double angy = (y.LBRect.size.width > y.LBRect.size.height) ? (y.LBRect.angle):(y.LBRect.angle-90);
     return abs(angx-angy)<20;
 }
 
@@ -39,13 +41,45 @@ bool distDiff(LightBlob &x,LightBlob &y){
     return (ratio<10&&ratio>0.5);
 }
 
+/* 判断两个灯条的错位度，不知道英文是什么！！！ */
+static bool CuoWeiDuJudge(const LightBlob &light_blob_i, const LightBlob &light_blob_j) {
+    float angle_i = light_blob_i.LBRect.size.width > light_blob_i.LBRect.size.height ? light_blob_i.LBRect.angle :
+                    light_blob_i.LBRect.angle - 90;
+    float angle_j = light_blob_j.LBRect.size.width > light_blob_j.LBRect.size.height ? light_blob_j.LBRect.angle :
+                    light_blob_j.LBRect.angle - 90;
+    float angle = (angle_i + angle_j) / 2.0 / 180.0 * 3.14159265459;
+    if (abs(angle_i - angle_j) > 90) {
+        angle += 3.14159265459 / 2;
+    }
+    cv::Vec2f orientation(cos(angle), sin(angle));
+    cv::Vec2f p2p(light_blob_j.LBRect.center.x - light_blob_i.LBRect.center.x,
+                 light_blob_j.LBRect.center.y - light_blob_i.LBRect.center.y);
+    return abs(orientation.dot(p2p)) < 25;
+}
+// 判断装甲板方向
+static bool boxAngleJudge(const LightBlob &light_blob_i, const LightBlob &light_blob_j) {
+    float angle_i = light_blob_i.LBRect.size.width > light_blob_i.LBRect.size.height ? light_blob_i.LBRect.angle :
+                    light_blob_i.LBRect.angle - 90;
+    float angle_j = light_blob_j.LBRect.size.width > light_blob_j.LBRect.size.height ? light_blob_j.LBRect.angle :
+                    light_blob_j.LBRect.angle - 90;
+    float angle = (angle_i + angle_j) / 2.0;
+    if (abs(angle_i - angle_j) > 90) {
+        angle += 90.0;
+    }
+    return (-120.0 < angle && angle < -60.0) || (60.0 < angle && angle < 120.0);
+}
+
 //综合这些函数判断两个灯条是否match
 bool isMatchLB(LightBlob &x,LightBlob &y){
-    return heightDiff(x,y)&&lengthDiff(x,y)&&angleDiff(x,y)&&distDiff(x,y);
+#ifdef LB_PARAM
+    fprintf(stderr,"lenghtratio = %.3f\n",x.length/y.length);
+    fprintf(stderr,"%d %d %d\n",(int)lengthDiff(x,y),(int)angleDiff(x,y),(int)distDiff(x,y));
+#endif
+    return lengthDiff(x,y)&&angleDiff(x,y)&&distDiff(x,y)&&boxAngleJudge(x,y)&&CuoWeiDuJudge(x,y);
 }
 
 bool Armor_Detector::matchLBS(cv::Mat &frame, std::vector<LightBlob> &LiBs,std::vector<Armor_box> &ArBs){
-    for(int i=0;i<LiBs.size();++i){
+    for(int i=0;i<LiBs.size()-1;++i){
         for(int j=i+1;j<LiBs.size();++j){
             if(!isMatchLB(LiBs[i],LiBs[j])) continue;
             cv::Rect2d l=LiBs[i].LBRect.boundingRect(); //得到左右灯条代表的矩形
@@ -68,6 +102,7 @@ bool Armor_Detector::matchLBS(cv::Mat &frame, std::vector<LightBlob> &LiBs,std::
                     {LiBs[i],LiBs[j]}
                 )
             );
+            break;
         }
     }
     if(!ArBs.size()) return false;
@@ -85,6 +120,8 @@ void Armor_Detector::work(cv::Mat &frame){
     if(!findLightBlobs(frame,LiBs)){
         ReturnFunc(frame);return;
     }
+
+    //fprintf(stderr,"%d\n",(int)LiBs.size());
 
 #ifdef DBGLBS
     for(auto x:LiBs){
