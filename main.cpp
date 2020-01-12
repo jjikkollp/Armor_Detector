@@ -9,6 +9,7 @@
 cv::Mat frame; //要处理的每一帧图像。
 
 std::string FILEPATH="../pos/"; //存储装甲板图像的文件相对路径
+std::string FILEPATH2="../process/"; //存储输出文件的相对路径
 cv::VideoCapture cam(0); //laptop摄像头初始化
 int Current_Frame=1; //读取文件时的计数器。
 Armor_Detector arm_det; //寻找装甲ban实例对象
@@ -47,9 +48,10 @@ int main(int argc,char *argv[]){
         cv::waitKey(0);
 #endif
         if(OUTPUT_MODE){
-            cv::imwrite('P'+file,frame);
+            file = FILEPATH2+"a"+std::to_string(Current_Frame)+".jpg";
+            cv::imwrite(file,frame);
         }
     }
-    fprintf(stderr,"The Program ended successfully!");
+    fprintf(stderr,"The Program ended successfully!\n");
     return 0;
 }
