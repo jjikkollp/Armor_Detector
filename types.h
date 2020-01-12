@@ -23,7 +23,7 @@ public:
     std::vector<LightBlob> LBS; //装甲板对应的灯条们
     int id; //装甲板的数字
     //构造函数
-    Armor_box(cv::Rect2d Rect,std::vector<LightBlob> LB):ABRect(Rect),LBS(LB){}
+    Armor_box(cv::Rect2d Rect,std::vector<LightBlob> LB,int i=0):ABRect(Rect),LBS(LB),id(i){}
     cv::Point2f Center(); //获取装甲板中心
 };
 
