@@ -6,9 +6,12 @@ Intel(R) Core(TM) i5-5257U CPU @ 2.70GHz 双核四线程
 
 8GB 1867MHz DDR3
 
-运行效率：667张文件，平均每帧45ms
+运行效率：
+667张文件，平均每帧40ms //lbfinder.cpp(包括HSV空间，三种求交集)
+667张文件，平均每帧20ms //lbfinder2.cpp(两种求交集)
+(可以在CMakeLists.txt里面改文件)
 
-####二.运行方式
+#### 二.运行方式
 
 数据集的pos文件放在项目目录下
 

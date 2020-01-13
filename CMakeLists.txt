@@ -28,6 +28,6 @@ message(STATUS "    version: ${OpenCV_VERSION}")
 message(STATUS "    libraries: ${OpenCV_LIBS}")
 message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 
-add_executable(arm_detector main.cpp armor_finder.cpp options.cpp lb_finder.cpp armor_box.cpp)
+add_executable(arm_detector main.cpp armor_finder.cpp options.cpp lb_finder2.cpp armor_box.cpp)
 
 target_link_libraries(arm_detector LINK_PRIVATE ${OpenCV_LIBS})
