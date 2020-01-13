@@ -33,12 +33,9 @@ bool Load_Frame(int type){
 }
 
 int main(int argc,char *argv[]){
-    FILE *timef;
-    timef=fopen("./time.txt","w+");
     clock_t start=clock();
     initopts(argc,argv);
     while(Load_Frame(CAMERA_TYPE)){
-        clock_t curr=clock();
         arm_det.work(frame);
 #ifdef HSVTEST
         cv::cvtColor(frame,frame,CV_BGR2HSV);
@@ -51,8 +48,6 @@ int main(int argc,char *argv[]){
         cv::imshow("testboxV",channels[2]);
         cv::waitKey(0);
 #endif
-        clock_t endd=clock();
-        fprintf(timef,"It costs %.3f seconds to solve NO. %d frame\n",(double)(endd-curr)/CLOCKS_PER_SEC,Current_Frame-1);
         if(OUTPUT_MODE){
             file = FILEPATH2+"a"+std::to_string(Current_Frame-1)+".jpg";
             cv::imwrite(file,frame);

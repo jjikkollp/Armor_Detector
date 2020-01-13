@@ -75,6 +75,8 @@ void Armor_Detector::frameProcess(cv::Mat &frame){
 }
 
 bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs){
+    //clock_t curr,endd;
+
     cv::Mat color_channel; //ENEMY颜色通道
     cv::Mat Vchannel; //灯条明度通道
     cv::Mat HSVframe; //转化为HSV空间的frame
@@ -95,10 +97,15 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
     cv::waitKey(0);
 #endif
 
+    //curr=clock();
+
     cv::cvtColor(frame,HSVframe,CV_BGR2HSV);
+
+    //endd=clock();
+    //fprintf(stderr,"It costs %.3f seconds to convert frame to HSV\n",(double)(endd-curr)/CLOCKS_PER_SEC);
+    
     cv::split(HSVframe,channels);
     Vchannel = channels[2].clone(); //保存明度空间，和颜色一起确定灯条
-
 
     //二值化图像
 
@@ -124,6 +131,8 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
     cv::threshold(Vchannel,VBinframe,200,255,CV_THRESH_BINARY);
     if(VBinframe.empty()) return false; //没有找到任何一个灯条
     frameProcess(VBinframe); //开闭运算，清除发光噪点
+    
+    //二值化和开闭运算 10ms
 
 #ifdef DBGLB2
     cv::imshow("binary",VBinframe);
@@ -138,7 +147,7 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
     cv::imshow("bv",VBinframe);
     cv::waitKey(0);
 #endif
-
+    
     //三次操作，前两次减少二值化操作的误差，第三次通过明度降低蓝色背景带来的误差
     //对三次操作的图像取交得到正确的灯条集合
 
@@ -150,7 +159,7 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
     cv::findContours(Binframe,contour1,hierarchy1,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE);
     cv::findContours(Binframe2,contour2,hierarchy2,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE);
     cv::findContours(VBinframe,contourV,hierarchyV,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE);
-    /*END*/
+    /*END with about 4ms*/
 
     //对三个图像分别做找灯条操作
     for(int i=0;i<contour1.size();++i){

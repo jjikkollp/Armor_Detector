@@ -130,15 +130,19 @@ bool Armor_Detector::matchLBS(cv::Mat &frame, std::vector<LightBlob> &LiBs,std::
 
 void Armor_Detector::work(cv::Mat &frame){
     std::vector<LightBlob> LiBs; //存储图中所有可能的灯条
-    std::vector<Armor_box> ArBs; //存储途中所有可能的装甲板
+    std::vector<Armor_box> ArBs; //存储图中所有可能的装甲板
 
     LiBs.clear();
     ArBs.clear();
 
+    //clock_t curr=clock();
     //在图上寻找灯条
     if(!findLightBlobs(frame,LiBs)){
         return;
     }
+    //clock_t endd=clock();
+
+    //fprintf(stderr,"It costs %.3f seconds to findLBs\n",(double)(endd-curr)/CLOCKS_PER_SEC);
 
     //将灯条按从左到右顺序排序，便于找装甲板。
 
@@ -157,10 +161,14 @@ void Armor_Detector::work(cv::Mat &frame){
     }
 #endif
 
+    //curr=clock();
     //配对灯条，找出装甲板
     if(!matchLBS(frame,LiBs,ArBs)){
         return;
     }
+    //endd=clock();
+
+    //fprintf(stderr,"It costs %.3f seconds to matchLBS\n",(double)(endd-curr)/CLOCKS_PER_SEC);
 
     if(OUTPUT_MODE){
         //draw armors
