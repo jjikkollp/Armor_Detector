@@ -15,7 +15,7 @@ Intel(R) Core(TM) i5-5257U CPU @ 2.70GHz 双核四线程
 ```
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 ./arm_detector
 ```
