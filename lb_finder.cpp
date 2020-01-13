@@ -18,7 +18,7 @@ bool colJudge(const cv::Mat &frame, const cv::RotatedRect &LiB) {
     int red_cnt=0,blue_cnt=0,green_cnt=0;
     int flag=1;
     for(int row=0;row<roi.rows;row++){
-        for(int col=0;col< roi.cols; col++){
+        for(int col=0;col<roi.cols; col++){
             blue_cnt+=roi.at<cv::Vec3b>(row,col)[0];
             green_cnt+=roi.at<cv::Vec3b>(row,col)[1];
             red_cnt+=roi.at<cv::Vec3b>(row,col)[2];
@@ -204,6 +204,7 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
     //对三个图像得到的灯条求交集
     for(int i=0;i<lbs1.size();++i){
         if(ban1[i]) continue;
+        int f=0;
         for(int j=0;j<lbs2.size();++j){
             if(ban2[j]) continue;
             if(isEqualLB(lbs1[i],lbs2[j])){
@@ -226,9 +227,12 @@ bool Armor_Detector::findLightBlobs(cv::Mat &frame,std::vector<LightBlob> &LiBs)
                                 LiBs.emplace_back(lbsv[k]);
                             }
                         }
+                        f=1;
                     }
+                    if(f) break;
                 }
             }
+            if(f) break;
         }
     }
     return LiBs.size()>=2;

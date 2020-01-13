@@ -1,7 +1,7 @@
 //TODO：获取装甲板ID
 #include "armor_finder.h"
 
-#define DBGLBS //输出灯条框
+//#define DBGLBS //输出灯条框
 // #define LB_PARAM //调试灯条匹配参数
 
 //~~DEL:倾斜装甲板无法判断，故删除~~
