@@ -12,5 +12,5 @@ void Attacker::solveangle(cv::Mat &frame){
 void Attacker::run(cv::Mat &frame,Armor_box aim_){
     aim = aim_;
     solveangle(frame);
-    
+       
 }
