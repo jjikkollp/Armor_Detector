@@ -14,6 +14,7 @@ cv::VideoCapture cam(0); //laptop摄像头初始化
 int Current_Frame=1; //读取文件时的计数器。
 Armor_Detector arm_det; //寻找装甲ban实例对象
 std::string file; //当前读取文件目录
+Attacker atk; //Attacker实例
 
 //读取每一帧，返回是否成功读取
 bool Load_Frame(int type){
@@ -36,7 +37,8 @@ int main(int argc,char *argv[]){
     clock_t start=clock();
     initopts(argc,argv);
     while(Load_Frame(CAMERA_TYPE)){
-        arm_det.work(frame);
+        Armor_box aim = arm_det.work(frame);
+        atk.run(frame,aim);
 #ifdef HSVTEST
         cv::cvtColor(frame,frame,CV_BGR2HSV);
         std::vector<cv::Mat> channels;

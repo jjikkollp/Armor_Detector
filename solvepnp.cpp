@@ -69,9 +69,13 @@ cv::Vec3d solvepnp(cv::Mat &frame,std::vector<cv::Point2d> points){
 
     //世界坐标
     std::vector<cv::Point3d> Points3D;
-    //wait to be set
-
-
+    double arm_width,arm_height; //单位:cm wait to be set
+    arm_width/=2;arm_height/=2;
+    Points3D.emplace_back(-arm_width,-arm_height);
+    Points3D.emplace_back(-arm_width,arm_height);
+    Points3D.emplace_back(arm_width,arm_height);
+    Points3D.emplace_back(arm_width,-arm_height);
+    
     //wait to be set
     double fx,cx,fy,cy; //相机内参
     double c1,c2; //畸变参数
@@ -113,5 +117,6 @@ cv::Vec3d solvepnp(cv::Mat &frame,std::vector<cv::Point2d> points){
     //x=-x;y=-y;z=-z;
     //fprintf(stderr,"摄像头相对于世界坐标系的坐标为x=%.3f y=%.3f z=%.3f\n",x,y,z);
     fprintf(stderr,"目标相对摄像头的向量为 (%.3f %.3f %.3f)\n",x,y,z);
-    
+
+    return cv::Vec3d(x,y,z);
 }

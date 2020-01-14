@@ -24,7 +24,10 @@ public:
     int id; //装甲板的数字
     //构造函数
     Armor_box(cv::Rect2d Rect,std::vector<LightBlob> LB,int i=0):ABRect(Rect),LBS(LB),id(i){}
-    cv::Point2f Center(); //获取装甲板中心
+    //获取装甲板中心
+    cv::Point2f Center(); 
+    //按次序获取装甲板的四个定点，从左下开始顺时针
+    std::vector<cv::Point2f> points(); 
 };
 
 #endif /* TYPES_H */

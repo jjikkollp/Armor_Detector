@@ -6,5 +6,6 @@
 #include "options.h"
 #include "types.h"
 #include "armor_finder.h"
+#include "attack.h"
 
 #endif
