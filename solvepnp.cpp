@@ -110,8 +110,8 @@ void solvepnp(cv::Mat &frame,std::vector<cv::Point2d> points){
     rByZ(x,y,-theta_z,x,y);
     rByY(x,z,-theta_y,x,z);
     rByX(y,z,-theta_x,y,z);
-    x=-x;y=-y;z=-z;
-
-    fprintf(stderr,"摄像头相对于世界坐标系的坐标为x=%.3f y=%.3f z=%.3f\n",x,y,z);
+    //x=-x;y=-y;z=-z;
+    //fprintf(stderr,"摄像头相对于世界坐标系的坐标为x=%.3f y=%.3f z=%.3f\n",x,y,z);
+    fprintf(stderr,"目标相对摄像头的向量为 (%.3f %.3f %.3f)\n",x,y,z);
     
 }
