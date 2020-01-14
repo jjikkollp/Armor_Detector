@@ -169,12 +169,14 @@ Armor_box Armor_Detector::work(cv::Mat &frame){
     //endd=clock();
 
     //fprintf(stderr,"It costs %.3f seconds to matchLBS\n",(double)(endd-curr)/CLOCKS_PER_SEC);
-
+    
     if(OUTPUT_MODE){
         //draw armors
         for(auto x:ArBs){
             cv::rectangle(frame,x.ABRect,cv::Scalar(0,255,255),2);
         }
     }
-    return;
+    sort(ArBs.begin(),ArBs.end(),[](Armor_box a,Armor_box b){return a.ABRect.size.area()>b.ABRect.size.area();});
+    //默认返回最大的
+    return ArBs[0];
 }
