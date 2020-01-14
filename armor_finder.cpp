@@ -128,7 +128,7 @@ bool Armor_Detector::matchLBS(cv::Mat &frame, std::vector<LightBlob> &LiBs,std::
     else return true;
 }
 
-void Armor_Detector::work(cv::Mat &frame){
+std::vector<cv::Point2f> Armor_Detector::work(cv::Mat &frame){
     std::vector<LightBlob> LiBs; //存储图中所有可能的灯条
     std::vector<Armor_box> ArBs; //存储图中所有可能的装甲板
 

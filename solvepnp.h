@@ -6,7 +6,7 @@
 const double MY_PI = 3.14159265358979323;
 
 //pnp解算入口
-void solvepnp(cv::Mat &frame, std::vector<cv::Point2f> points);
+cv::Vec3d solvepnp(cv::Mat &frame, std::vector<cv::Point2f> points);
 //旋转矩阵转换为欧拉角
 cv::Vec3d rm2euler(cv::Mat &rMat);
 //旋转向量转换为欧拉角

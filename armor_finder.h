@@ -15,7 +15,7 @@ public:
     //对图像进行开闭运算函数
     void frameProcess(cv::Mat &frame);
     //装甲板识别主函数
-    void work(cv::Mat &frame);
+    std::vector<cv::Point2f> work(cv::Mat &frame);
 };
 
 #endif /* ARMOR_FINDER_H */

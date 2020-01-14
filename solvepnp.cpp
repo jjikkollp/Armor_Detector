@@ -49,7 +49,7 @@ void rByZ(double x,double y,double thetaz,double &outx,double &outy){
 
 
 //SOLVE_PNP,传入图像中四个位置点
-void solvepnp(cv::Mat &frame,std::vector<cv::Point2d> points){
+cv::Vec3d solvepnp(cv::Mat &frame,std::vector<cv::Point2d> points){
     if(points.size()!=4){
         fprintf(stderr,"Plz input 4 points\n");
         return;
